@@ -7,7 +7,7 @@ const page = () => {
     <main className="bg-[#0f0f0f] text-white min-h-screen overflow-x-hidden">
       <Sidebar />
       
-      <Agent userName="you" userId="user1" type="generate" />
+      <Agent userName="you" />
     
     </main>
   );
