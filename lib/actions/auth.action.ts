@@ -26,7 +26,7 @@ export async function setSessionCookie(idToken: string) {
   });
 }
 
-export async function signUp(params: SignUpParams) {
+export async function SignUp(params: SignUpParams) {
   const { uid, fullname, email } = params;
 
   try {
@@ -67,7 +67,7 @@ export async function signUp(params: SignUpParams) {
   }
 }
 
-export async function signIn(params: SignInParams) {
+export async function SignIn(params: SignInParams) {
   const { email, idToken } = params;
 
   try {
@@ -75,14 +75,31 @@ export async function signIn(params: SignInParams) {
     if (!userRecord) {
       return {
         success: false,
-        message: "User does not exist. Create an account.",
+        message: "User  does not exist. Create an account.",
       };
     }
 
     // Set session cookie
     await setSessionCookie(idToken);
+    return { success: true }; // Return success if everything is fine
   } catch (error: any) {
     console.error("Error signing in user:", error);
+
+    // Handle specific Firebase errors
+    if (error instanceof FirebaseError) {
+      if (error.code === "auth/user-not-found") {
+        return {
+          success: false,
+          message: "User  does not exist. Create an account.",
+        };
+      }
+      if (error.code === "auth/wrong-password") {
+        return {
+          success: false,
+          message: "Incorrect password. Please try again.",
+        };
+      }
+    }
 
     return {
       success: false,
@@ -92,7 +109,7 @@ export async function signIn(params: SignInParams) {
 }
 
 // Sign out user by clearing the session cookie
-export async function signOut() {
+export async function SignOut() {
   const cookieStore = await cookies();
   cookieStore.delete("session");
 }
