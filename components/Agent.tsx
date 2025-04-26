@@ -1,5 +1,7 @@
-import React from 'react'
-import { BorderBeam } from './magicui/border-beam'
+'use client';
+
+import React, { useState } from 'react';
+import { BorderBeam } from './magicui/border-beam';
 import { cn } from '@/lib/utils';
 
 enum CallStatus {
@@ -9,16 +11,33 @@ enum CallStatus {
   FINISHED = 'FINISHED'
 }
 
+interface AgentProps {
+  userName: string;
+}
 
 const Agent = ({ userName }: AgentProps) => {
-  const callStatus = CallStatus.FINISHED;
-  const isSpeaking = true;
+  const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
 
   const message = [
     "what is your name?",
     "I am a robot",
-  ]
+  ];
   const lastMessage = message[message.length - 1];
+
+  const handleRestart = () => {
+    setCallStatus(CallStatus.CONNECTING);
+    setIsSpeaking(true);
+    // simulate connecting -> active
+    setTimeout(() => {
+      setCallStatus(CallStatus.ACTIVE);
+    }, 1000);
+  };
+
+  const handleEnd = () => {
+    setCallStatus(CallStatus.FINISHED);
+    setIsSpeaking(false);
+  };
 
   return (
     <main className="flex-1 p-4 lg:ml-64 flex flex-col items-center justify-center">
@@ -79,29 +98,35 @@ const Agent = ({ userName }: AgentProps) => {
 
         {/* Message Area */}
         <div className="mb-4 w-full">
-        {message.length > 0 &&
-          <div className="bg-gradient-to-br from-[#1c1c1c] to-[#191021] border border-[#2a2a2a] rounded-xl p-6 text-center shadow-inner">
-            <p key={lastMessage} className={cn("text-xl text-gray-200 transition-opacity duration-500", "animate-fade-in")}>
-              {lastMessage}
-            </p>
-
-          </div>
-          }
+          {message.length > 0 && (
+            <div className="bg-gradient-to-br from-[#1c1c1c] to-[#191021] border border-[#2a2a2a] rounded-xl p-6 text-center shadow-inner">
+              <p key={lastMessage} className={cn("text-xl text-gray-200 transition-opacity duration-500", "animate-fade-in")}>
+                {lastMessage}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Controls */}
-        <div className="flex justify-center ">
+        <div className="flex justify-center">
           {callStatus === CallStatus.ACTIVE ? (
-            <button className="px-10 py-4 rounded-full bg-red-600 hover:bg-red-700 transition text-white text-lg font-medium shadow-md">
+            <button
+              onClick={handleEnd}
+              className="px-10 py-4 rounded-full bg-red-600 hover:bg-red-700 transition text-white text-lg font-medium shadow-md"
+            >
               End
             </button>
-          ) : callStatus === CallStatus.FINISHED || callStatus === CallStatus.INACTIVE ? (
-            <button className="px-10 py-4 rounded-full bg-green-600 hover:bg-green-700 transition text-white text-lg font-medium shadow-md">
-              Restart
-            </button>
-          ) : null}
+          ) : (
+            (callStatus === CallStatus.FINISHED || callStatus === CallStatus.INACTIVE) && (
+              <button
+                onClick={handleRestart}
+                className="px-10 py-4 rounded-full bg-green-600 hover:bg-green-700 transition text-white text-lg font-medium shadow-md"
+              >
+                Restart
+              </button>
+            )
+          )}
         </div>
-
 
       </div>
     </main>
