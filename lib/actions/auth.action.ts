@@ -1,3 +1,4 @@
+'use server';
 import { auth, db } from "@/firebase/admin";
 import { FirebaseError } from "firebase/app";
 import { cookies } from "next/headers";
