@@ -1,5 +1,3 @@
-'use server';
-
 import { auth, db } from "@/firebase/admin";
 import { FirebaseError } from "firebase/app";
 import { cookies } from "next/headers";
@@ -35,7 +33,7 @@ export async function SignUp(params: SignUpParams) {
     if (userRecord.exists) {
       return {
         success: false,
-        message: "User already exists. Please sign in.",
+        message: "User  already exists. Please sign in.",
       };
     }
 
@@ -49,7 +47,7 @@ export async function SignUp(params: SignUpParams) {
       success: true,
       message: "Account created successfully. Please sign in.",
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error creating user:", error);
 
     // Handle Firebase specific errors
@@ -82,7 +80,7 @@ export async function SignIn(params: SignInParams) {
     // Set session cookie
     await setSessionCookie(idToken);
     return { success: true }; // Return success if everything is fine
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error signing in user:", error);
 
     // Handle specific Firebase errors
@@ -115,7 +113,7 @@ export async function SignOut() {
 }
 
 // Get current user from session cookie
-export async function getCurrentUser(): Promise<User | null> {
+export async function getCurrentUser (): Promise<User | null> {
   const cookieStore = await cookies();
 
   const sessionCookie = cookieStore.get("session")?.value;
@@ -142,6 +140,6 @@ export async function getCurrentUser(): Promise<User | null> {
 
 // Check if user is authenticated
 export async function isAuthenticated() {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser ();
   return !!user;
 }

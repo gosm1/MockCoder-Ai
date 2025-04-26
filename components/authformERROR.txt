@@ -16,8 +16,9 @@ import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/firebase/client';
-import { SignIn, SignUp } from '@/lib/actions/auth.action';
+import { SignUp } from '@/lib/actions/auth.action';
 import Link from 'next/link';
+import { FirebaseError } from 'firebase/app';
 
 // Dynamic schema based on type
 const getSchema = (type: "sign-in" | "sign-up") =>
@@ -62,16 +63,17 @@ export default function AuthForm({ type }: { type: "sign-in" | "sign-up" }) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
+  
     try {
       if (type === 'sign-up') {
         const { fullName, email, password } = values;
-
+  
         const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-    if (signInMethods.length > 0) {
-      toast.error("This email is already in use. Try signing in instead. ❌");
-      return;
-    }
-    
+        if (signInMethods.length > 0) {
+          toast.error("This email is already in use. Try signing in instead. ❌");
+          return;
+        }
+  
         const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
         const result = await SignUp({
           uid: userCredentials.user.uid,
@@ -79,35 +81,69 @@ export default function AuthForm({ type }: { type: "sign-in" | "sign-up" }) {
           email,
           password,
         });
-
+  
         if (!result?.success) {
           toast.error(result?.message || "Error creating a user account");
           return;
         }
-
+  
         toast.success("Account created successfully! Please sign in. 🎉");
         router.push('/sign-in');
-
+  
       } else {
         const { email, password } = values;
-
+  
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const idToken = await userCredential.user.getIdToken();
-
-        await SignIn({ email, idToken });
+        //const idToken = await userCredential.user.getIdToken();
+  
         toast.success("Signed in successfully! 🎉");
         router.push('/dashboard');
       }
-
+  
       form.reset();
       setSelectedFile(null);
+  
     } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error("Something went wrong! ❌");
+      if (error instanceof FirebaseError) {
+        if (type === 'sign-up') {
+          // 🔥 Specific sign-up error handling
+          switch (error.code) {
+            case "auth/email-already-in-use":
+              toast.error("This email is already in use. Try signing in. ❌");
+              break;
+            case "auth/invalid-email":
+              toast.error("Invalid email address. Please check and try again. ❌");
+              break;
+            case "auth/weak-password":
+              toast.error("Password is too weak. Try a stronger one. ❌");
+              break;
+            default:
+              toast.error("Error creating account. Please try again. ❌");
+          }
+        } else {
+          // 🔥 Specific sign-in error handling
+          switch (error.code) {
+            case "auth/user-not-found":
+              toast.error("User not found. Please sign up first. ❌");
+              break;
+            case "auth/wrong-password":
+              toast.error("Incorrect password. Please try again. ❌");
+              break;
+            case "auth/invalid-email":
+              toast.error("Invalid email address. Please check and try again. ❌");
+              break;
+            default:
+              toast.error("Authentication error. Please try again. ❌");
+          }
+        }
+      } else {
+        toast.error("Something went wrong! Please try again. ❌");
+      }
     } finally {
       setLoading(false);
     }
   }
+  
 
   const isSignIn = type === "sign-in";
 
@@ -209,4 +245,4 @@ export default function AuthForm({ type }: { type: "sign-in" | "sign-up" }) {
     </div>
   );
 }
-
+ 
