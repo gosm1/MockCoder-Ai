@@ -1,6 +1,7 @@
 'use server';
 
 import { auth, db } from "@/firebase/admin";
+import { FirebaseError } from "firebase/app";
 import { cookies } from "next/headers";
 
 export async function SignUp(params: SignUpParams) {
@@ -10,7 +11,7 @@ export async function SignUp(params: SignUpParams) {
     const userRecord = await db.collection('users').doc(uid).get();
 
     if (userRecord.exists) {
-      return { success: false, message: "User  already exists" };
+      return { success: false, message: "User already exists" };
     }
 
     await db.collection('users').doc(uid).set({
@@ -19,8 +20,9 @@ export async function SignUp(params: SignUpParams) {
 
     return { success: true, message: "Account created successfully" };
 
-  } catch (error: any) {
-    if (error.code === 'auth/email-already-in-use') {
+  } catch (error: unknown) {
+    // TypeScript requires us to handle the error properly
+    if (error instanceof FirebaseError && error.code === 'auth/email-already-in-use') {
       return { success: false, message: "Email already in use" };
     }
     return { success: false, message: "Error creating a user account" };
@@ -34,7 +36,7 @@ export async function SignIn(params: SignInParams) {
     const userRecord = await auth.getUserByEmail(email);
     await SessionCookies(idToken);
   } catch (error) {
-    return { success: false, message: "User  does not exist" };
+    return { success: false, message: "User does not exist" };
   }
 }
 
@@ -63,24 +65,23 @@ export async function getCurrentUser(): Promise<User | null> {
 
   if(!sessionCookie) return null;
 
-  try{
-    const decodedClaims = await auth.verifySessionCookie(sessionCookie, true)
+  try {
+    const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
     const userRecord = await db.collection('users').doc(decodedClaims.uid).get();
 
-    if(!userRecord.exists) return null;
+    if (!userRecord.exists) return null;
     
     return {
       ...userRecord.data(),
       id: userRecord.id,
+    } as User;
 
-    } as User
-
-  } catch(error){
+  } catch (error) {
     return null;
   }
 } 
 
-export async function isAuthenticated(){
+export async function isAuthenticated() {
   const user = await getCurrentUser();
-  return !!user
+  return !!user;
 }
