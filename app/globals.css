@@ -8,6 +8,26 @@
     0px 0px 0px 1px rgba(25, 28, 33, 0.08);
 }
 
+@keyframes pulseCustom {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pulse-custom {
+  animation: pulseCustom 2s ease-in-out infinite;
+}
+
+
 @keyframes shine {
   0% {
     background-position: 0% 0%;
