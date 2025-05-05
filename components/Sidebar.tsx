@@ -56,7 +56,7 @@ const Sidebar = () => {
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                 className="w-full flex items-center gap-3 hover:bg-[#8051B7]/30 p-2 rounded-lg transition-colors"
                             >
-                                <img src="https://via.placeholder.com/40" alt="User" className="w-8 h-8 rounded-full" />
+                                <h1>Profile</h1>
                                 <span className="text-sm">John Doe</span>
                                 <svg className={`w-4 h-4 ml-auto transform transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
