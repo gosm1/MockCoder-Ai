@@ -1,9 +1,20 @@
-"use client";
-import { useState } from 'react';
+'use client';
+import { useEffect, useState } from 'react';
+import { getCurrentUser } from '@/lib/actions/auth.action';
 
 const Sidebar = () => {
+    const [user, setUser] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const currentUser = await getCurrentUser();
+            setUser(currentUser!);
+        };
+
+        fetchUser();
+    }, []);
 
     return (
         <>
@@ -44,36 +55,60 @@ const Sidebar = () => {
                                     Dashboard
                                 </a>
                             </li>
-
                             {/* Add more menu items here */}
                         </ul>
                     </nav>
 
-                    {/* Footer */}
-                    <div className="p-4 border-t border-gray-700">
+                    {/* Footer - Improved Design */}
+                    <div className="mt-auto p-4 border-t border-gray-700">
                         <div className="relative">
                             <button
                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                 className="w-full flex items-center gap-3 hover:bg-[#8051B7]/30 p-2 rounded-lg transition-colors"
                             >
-                                <h1>Profile</h1>
-                                <span className="text-sm">John Doe</span>
+                                <div className="flex items-center flex-1">
+                                    <div className="h-8 w-8 rounded-full bg-[#9c40ff] flex items-center justify-center mr-3">
+                                        <span className="text-sm font-medium">{user?.fullname ? user.fullname[0] : '?'}</span>
+                                    </div>
+                                    <div className="flex flex-col items-start">
+                                        <span className="text-sm font-medium">{user?.fullname || 'Guest'}</span>
+                                        <span className="text-xs text-gray-400">Online</span>
+                                    </div>
+                                </div>
                                 <svg className={`w-4 h-4 ml-auto transform transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
+
+                            {/* Dropdown positioned correctly */}
                             {isDropdownOpen && (
-                                <div className="absolute bottom-full mb-2 w-full bg-[#1f1f2f] border border-[#8051B7] rounded-lg shadow-lg">
-                                    <div className="p-2 space-y-1">
-                                        <a href="#" className="block px-4 py-2 text-sm text-white hover:bg-[#8051B7]/30 rounded-lg">Profile</a>
-                                        <a href="#" className="block px-4 py-2 text-sm text-white hover:bg-[#8051B7]/30 rounded-lg">Settings</a>
-                                        <a href="#" className="block px-4 py-2 text-sm text-white hover:bg-[#8051B7]/30 rounded-lg">Logout</a>
+                                <div className="absolute bottom-12 left-0 w-full bg-[#1f1f2f] border border-[#8051B7]/50 rounded-lg shadow-lg overflow-hidden">
+                                    <div className="py-1">
+                                        <a href="#" className="flex items-center px-4 py-2 text-sm text-white hover:bg-[#8051B7]/30">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                            Profile
+                                        </a>
+                                        <a href="#" className="flex items-center px-4 py-2 text-sm text-white hover:bg-[#8051B7]/30">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            Settings
+                                        </a>
+                                        <div className="border-t border-gray-700 my-1"></div>
+                                        <a href="#" className="flex items-center px-4 py-2 text-sm text-red-400 hover:bg-[#8051B7]/30">
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                            </svg>
+                                            Logout
+                                        </a>
                                     </div>
                                 </div>
                             )}
                         </div>
                     </div>
-
                 </div>
             </div>
         </>
