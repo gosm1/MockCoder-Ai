@@ -4,6 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { vapi } from '@/lib/vapi.sdk';
+import { getCurrentUser } from '@/lib/actions/auth.action';
+import { interviewer } from '@/constants';
+import { CreateFeedback } from '@/lib/actions/general.action';
 
 enum CallStatus {
   INACTIVE = 'INACTIVE',
@@ -12,28 +15,33 @@ enum CallStatus {
   FINISHED = 'FINISHED',
 }
 
-interface AgentProps {
-  userName: string;
-  userId?: string;
-  type: 'generate' | 'interview';
-}
+
 
 interface SavedMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
-const Agent = ({ userName, userId, type }: AgentProps) => {
+const Agent = ({ userName, userId, type, interviewId, questions }: AgentProps) => {
+  
   const router = useRouter();
 
   const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [messages, setMessages] = useState<SavedMessage[]>([]);
   const [isMicActive, setIsMicActive] = useState<boolean>(false);
-
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Check if the user's microphone is active
+        const fetchUser = async () => {
+            const currentUser = await getCurrentUser();
+            setUser(currentUser!);
+        };
+
+        fetchUser();
+    }, []);
+
+  useEffect(() => {
     const checkMicStatus = async () => {
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
@@ -89,21 +97,63 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (callStatus === CallStatus.FINISHED) {
-      router.push('/');
+  const handleGenerateFeedback = async (messages: SavedMessage[]) => {
+    console.log("generate feedback")
+
+    // TOD
+    const { success, feedbackId: id } = await CreateFeedback({
+      interviewId: interviewId!,
+      userId: userId!,
+      transcript: messages,
+    })
+
+    if(success && id){
+      router.push(`/interviews/${interviewId}/feedback`)
     }
-  }, [callStatus]);
+    else{
+      router.push('/interviews');
+    }
+  }
+
+  useEffect(() => {
+    if (callStatus === CallStatus.FINISHED){
+      if(type === 'generate'){
+        router.push('/interviews');
+      }
+      else{
+        handleGenerateFeedback(messages);
+      }
+    }
+    if (callStatus === CallStatus.FINISHED) {
+      router.push('/interviews');
+    }
+  }, [messages, type, userId, callStatus]);
 
   const handleStartCall = async () => {
     try {
       setCallStatus(CallStatus.CONNECTING);
-      await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-        variableValues: {
-          username: userName,
-          userid: userId,
-        },
-      });
+      
+      if(type === 'generate'){
+        await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
+          variableValues: {
+            username: userName,
+            userid: userId,
+          },
+        });  
+      }
+      else{
+        let formattedQuestion = ''
+
+        if(questions){
+          formattedQuestion = questions.map((question) => `- ${question}`).join('\n')
+        }
+        await vapi.start(interviewer, {
+          variableValues: {
+            questions: formattedQuestion
+          }
+        })
+      }
+      
     } catch (_) {
       setCallStatus(CallStatus.INACTIVE);
     }
@@ -241,14 +291,12 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
             {/* User */}
             <div className="flex flex-col items-center space-y-2 bg-gradient-to-b from-slate-800/30 to-slate-900/30 rounded-xl px-4 py-6 md:px-12 md:py-20 w-full  border border-slate-700/10">
               <div className="w-16 h-16 rounded-full overflow-hidden">
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800/60 to-slate-900/60">
-                  <svg className="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                  </svg>
+                <div className="w-full text-white h-full text-2xl flex items-center justify-center bg-gradient-to-br from-slate-800/60 to-slate-900/60">
+                  {user?.fullname ? user.fullname[0] : '?'}
                 </div>
               </div>
 
-              <h2 className="text-sm font-medium text-white">{userName || 'User'}</h2>
+              <h2 className="text-sm font-medium text-white">{user?.fullname || 'Guest'}</h2>
             </div>
         </div>
 

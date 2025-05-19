@@ -27,9 +27,6 @@ const getSchema = (type: "sign-in" | "sign-up") =>
     fullName: type === "sign-up" 
       ? z.string().min(3, "Full name must be at least 3 characters") 
       : z.optional(z.string()),
-    resume: type === "sign-up" 
-      ? z.instanceof(File, { message: "Resume is required" }) 
-      : z.optional(z.any()),
   });
 
 export default function AuthForm({ type }: { type: "sign-in" | "sign-up" }) {
@@ -44,21 +41,10 @@ export default function AuthForm({ type }: { type: "sign-in" | "sign-up" }) {
       email: "",
       password: "",
       fullName: "",
-      resume: undefined,
     },
   });
 
-  const onDrop = (acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      setSelectedFile(acceptedFiles[0]);
-      form.setValue("resume", acceptedFiles[0]);
-    }
-  };
 
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    accept: { "application/pdf": [".pdf"] },
-  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
@@ -96,7 +82,7 @@ export default function AuthForm({ type }: { type: "sign-in" | "sign-up" }) {
 
         await SignIn({ email, idToken });
         toast.success("Signed in successfully! 🎉");
-        router.push('/dashboard');
+        router.push('/interviews');
       }
 
       form.reset();
@@ -116,10 +102,10 @@ export default function AuthForm({ type }: { type: "sign-in" | "sign-up" }) {
       <div className="w-full max-w-md relative">
         <Card className="border border-white/20 bg-gradient-to-b from-black/90 to-[#191021] shadow-[0_0_25px_rgba(255,255,255,0.1)] mx-4 relative">
           <BorderBeam duration={13} size={100} />
-          <CardHeader className="pb-0">
+          <CardHeader className="pb-">
             <div className="flex justify-center mb-5">
-              <div className="w-16 h-16 rounded-full shadow-[0_0_40px_rgba(156,64,255,0.3)] bg-[#171717] flex items-center justify-center">
-                <Image src={LockSvg} alt="Logo" width={44} height={44} />
+              <div className="w-16 h-16  rounded-full shadow-[0_0_40px_rgba(156,64,255,0.3)] bg-[#171717] flex items-center justify-center">
+                <Image src={LockSvg} alt="Logo" width={44} height={44} className='mb-3'/>
               </div>
             </div>
             <div className="text-center mb-5">
@@ -174,22 +160,7 @@ export default function AuthForm({ type }: { type: "sign-in" | "sign-up" }) {
                 )}
               </div>
 
-              {!isSignIn && (
-                <div className="relative">
-                  <div {...getRootProps()} className="p-4 border border-dashed border-gray-400 text-gray-300 text-center cursor-pointer bg-[#0F0F0F] rounded-lg">
-                    <input {...getInputProps()} />
-                    {selectedFile ? (
-                      <p className="text-green-400">{selectedFile.name}</p>
-                    ) : (
-                      <p>Drag & drop your resume (PDF) or click to upload</p>
-                    )}
-                  </div>
-                  {form.formState.errors.resume && (
-                    <p className="text-red-500 text-sm mt-1">form.formState.errors.resume.message</p>
-                  )}
-                </div>
-              )}
-
+              
               <Button type="submit" className="w-full py-5 bg-[#382C44] border-2 border-[#8051B7] shadow-md hover:bg-purple-700 text-white font-medium rounded-full" disabled={loading}>
                 {loading ? "Loading..." : (isSignIn ? "Sign in" : "Create an account")}
               </Button>

@@ -149,10 +149,10 @@ export async function isAuthenticated() {
 }
 
 
+
 export async function getInterviewById(userId: string): Promise<Interview[] | null> {
   const interview = await db.collection("interviews")
         .where("userId", "==", userId)
-        .where("userId", "==", "")
         .orderBy("createdAt", "desc")
         .get();
   return interview.docs.map((doc) => ({

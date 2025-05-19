@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { getCurrentUser } from '@/lib/actions/auth.action';
+import { ClipboardList, PhoneCall, StickyNote } from 'lucide-react';
 
 const Sidebar = () => {
     const [user, setUser] = useState(null);
@@ -33,7 +34,7 @@ const Sidebar = () => {
                 <div className="h-full flex flex-col text-white">
                     {/* Header */}
                     <div className="p-4 flex justify-between items-center border-b border-gray-700">
-                        <span className="font-semibold text-xl text-[#9c40ff]">Brand</span>
+                        <span className="font-semibold text-xl text-[#9c40ff]">MockCoder</span>
                         <button
                             onClick={() => setIsSidebarOpen(false)}
                             className="lg:hidden p-2 hover:bg-[#8051B7]/20 rounded-lg"
@@ -48,11 +49,21 @@ const Sidebar = () => {
                     <nav className="flex-1 overflow-y-auto p-4">
                         <ul className="space-y-2">
                             <li>
-                                <a href="#" className="flex items-center gap-3 p-2 text-white hover:bg-[#8051B7]/30 rounded-lg transition-colors">
-                                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                    </svg>
-                                    Dashboard
+                                <a href="/interviews" className="flex items-center gap-3 p-2 text-white hover:bg-[#8051B7]/30 rounded-lg transition-colors">
+                                    <ClipboardList className="w-5 h-5" />
+                                    Interviews
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/interview-call" className="flex items-center gap-3 p-2 text-white hover:bg-[#8051B7]/30 rounded-lg transition-colors">
+                                    <PhoneCall className="w-5 h-5" />
+                                    Interview Call
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/feedback" className="flex items-center gap-3 p-2 text-white hover:bg-[#8051B7]/30 rounded-lg transition-colors">
+                                    <StickyNote className="w-5 h-5" />
+                                    Feedback
                                 </a>
                             </li>
                             {/* Add more menu items here */}
