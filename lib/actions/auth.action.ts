@@ -160,3 +160,23 @@ export async function getInterviewById(userId: string): Promise<Interview[] | nu
     ...doc.data(),
   }) ) as Interview[];
 }
+
+export async function logout(): Promise<{ ok: boolean; message?: string }> {
+  try {
+    const res = await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => null);
+      return { ok: false, message: body ?? 'Logout failed' };
+    }
+
+    return { ok: true };
+  } catch (err) {
+    console.error('logout error', err);
+    return { ok: false, message: (err as Error).message };
+  }
+}

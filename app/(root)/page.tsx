@@ -1,11 +1,13 @@
+import HeroSection from "@/components/HeroSection";
+import PainPointsSection from "@/components/PainPointsSection";
 import Sidebar from "@/components/Sidebar";
 
 export default function Home() {
   return (
     <main>
-      <Sidebar />
-      <main className="flex-1 p-4 lg:ml-64">
-        ghujikolpm
+      <main className="overflow-x-hidden">
+        <HeroSection/>
+        <PainPointsSection/>
       </main>
     </main>
   );

@@ -9,19 +9,17 @@ const page = async ({ params }: RouteParams) => {
   const { id } = params;
   const user = await getCurrentUser();
 
-  if (!user) redirect('/login'); // Protect route if no user
+  if (!user) redirect('/login'); 
 
   const interview = await getInterviewByIdForSesion(id);
   if (!interview) redirect('/interviews');
 
   const feedback = await getFeedbackByInterviewId({ interviewId: id, userId: user.id });
-  if (!feedback) redirect('/interviews'); // or show some message if no feedback
+  if (!feedback) redirect('/interviews'); 
 
-  // Calculate total score as sum of category scores
   const totalScore = feedback.categoryScores.reduce((sum, cat) => sum + cat.score, 0);
 
 
-  // Badge and progress bar color helpers
   const getScoreBadgeColor = (score: number) => {
     if (score >= 80) return 'bg-green-500/20 text-green-400';
     if (score >= 60) return 'bg-yellow-500/20 text-yellow-400';
@@ -35,8 +33,6 @@ const page = async ({ params }: RouteParams) => {
     return 'bg-red-500';
   };
 
-  // Color for total score out of 500
-  // We'll normalize totalScore to percentage and then apply colors
   const totalScorePercent = (totalScore / 500) * 100;
   const getTotalScoreColor = (scorePercent: number) => {
     if (scorePercent >= 80) return 'text-green-400';

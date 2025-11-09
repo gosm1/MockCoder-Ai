@@ -69,7 +69,8 @@ const InterviewCard = ({
   techStack = [],
 }: InterviewCardProps) => {
   const defaultCompanyDomain = companyDomains[getStableRandomIndex(id, companyDomains.length)];
-  const fallbackLogo = `https://logo.clearbit.com/${defaultCompanyDomain}`;
+  const fallbackLogo = `https://www.google.com/s2/favicons?domain=${defaultCompanyDomain}&sz=128`;
+
 
   const defaultLogo = (
     <div

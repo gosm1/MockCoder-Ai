@@ -37,7 +37,7 @@ const Page = async () => {
                 <div className="col-span-3 text-center py-10">
                   <p className="text-gray-400">No interviews found. Start a new interview to begin!</p>
                   <button className="mt-4 px-6 py-2 bg-purple-700 hover:bg-purple-600 rounded-full text-white font-medium transition-colors">
-                    Start New Interview
+                    <a href='/interview-call'>Start New Interview</a>
                   </button>
                 </div>
               )}
